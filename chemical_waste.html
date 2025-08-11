@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chemical Management System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        :root {
+            --primary-color: #3b82f6;
+            --primary-dark: #2563eb;
+            --success-color: #10b981;
+            --success-dark: #059669;
+            --danger-color: #ef4444;
+            --danger-dark: #dc2626;
+            --warning-color: #f59e0b;
+            --warning-dark: #d97706;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+            z-index: -1;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .glass-header {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            border: none;
+            position: relative;
+            overflow: hidden;
+            font-size: 0.875rem;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.35);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.45);
+        }
+
+        .btn-primary:disabled {
+            background: var(--gray-400);
+            transform: none;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), var(--success-dark));
+            color: white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.45);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger-color), var(--danger-dark));
+            color: white;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.35);
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.45);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--gray-700);
+            border: 1px solid var(--gray-200);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-secondary:hover {
+            background: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+        }
+        
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid var(--gray-200);
+            border-radius: 0.75rem;
+            font-size: 0.875rem;
+            background: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+            transform: translateY(-1px);
+        }
+        
+        .alert {
+            padding: 1rem 1.25rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1rem;
+            display: none;
+            animation: slideInDown 0.3s ease-out;
+            position: relative;
+            border: 1px solid;
+        }
+
+        .alert::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            border-radius: 0.375rem 0 0 0.375rem;
+        }
+        
+        .alert-error {
+            background: rgba(254, 226, 226, 0.9);
+            color: var(--danger-dark);
+            border-color: rgba(239, 68, 68, 0.2);
+        }
+
+        .alert-error::before {
+            background: var(--danger-color);
+        }
+        
+        .alert-success {
+            background: rgba(220, 252, 231, 0.9);
+            color: var(--success-dark);
+            border-color: rgba(16, 185, 129, 0.2);
+        }
+
+        .alert-success::before {
+            background: var(--success-color);
+        }
+        
+        .table-container {
+            overflow: hidden;
+            border-radius: 1rem;
+            background: white;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        th {
+            background: linear-gradient(135deg, var(--gray-50), var(--gray-100));
+            padding: 1rem 1.25rem;
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--gray-600);
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid var(--gray-200);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        td {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--gray-100);
+            transition: background-color 0.2s ease;
+        }
+        
+        tr:hover td {
+            background-color: rgba(59, 130, 246, 0.03);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .modal-content {
+            background: white;
+            margin: 2% auto;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            animation: slideInUp 0.3s ease-out;
+            position: relative;
+        }
+        
+        .close {
+            position: absolute;
+            right: 1.5rem;
+            top: 1.5rem;
+            color: var(--gray-400);
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s ease;
+            width: 2rem;
+            height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: var(--gray-50);
+        }
+        
+        .close:hover {
+            color: var(--gray-700);
+            background: var(--gray-100);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--gray-700);
+            font-size: 0.875rem;
+        }
+
+        .required::after {
+            content: ' *';
+            color: var(--danger-color);
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 3rem;
+            color: var(--gray-500);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 2rem;
+            height: 2rem;
+            border: 3px solid var(--gray-200);
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 0.75rem;
+        }
+        
+        .summary-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .summary-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--success-color), var(--warning-color));
+        }
+
+        .summary-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .summary-card h3 {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--gray-600);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .summary-card p {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .supplier-badge {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .process-badge {
+            background: linear-gradient(135deg, var(--success-color), var(--success-dark));
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .moq-display {
+            font-weight: 600;
+            color: var(--warning-color);
+            background: rgba(245, 158, 11, 0.1);
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .filter-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 2rem;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--gray-500);
+        }
+
+        .no-data-icon {
+            width: 4rem;
+            height: 4rem;
+            margin: 0 auto 1rem;
+            color: var(--gray-300);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .modal-content {
+                margin: 5% auto;
+                width: 95%;
+                padding: 1.5rem;
+            }
+
+            .btn {
+                padding: 0.625rem 1.25rem;
+                font-size: 0.8125rem;
+            }
+
+            .filter-container {
+                padding: 1rem;
+            }
+
+            .summary-card {
+                padding: 1.25rem;
+            }
+
+            th, td {
+                padding: 0.75rem 1rem;
+            }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--gray-100);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--gray-300);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--gray-400);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="glass-header sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-6">
+            <div class="flex justify-between items-center flex-wrap gap-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                        <i data-lucide="flask-conical" class="text-white w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">Chemical Management</h1>
+                        <p class="text-sm text-gray-600">Process & Supplier Tracking System</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                         <!-- Place this beside the Add Entry button -->
+<button onclick="window.location.href='ed_scheduleWaste.html'" class="btn btn-primary">
+    <i data-lucide="file-text" class="w-4 h-4"></i>
+    <span>ScheduleWaste</span>
+                    <button onclick="openAddModal()" class="btn btn-success">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        <span>Add Chemical</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-6">
+        <!-- Filters -->
+        <div class="filter-container">
+            <div class="flex items-center flex-wrap gap-4">
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="calendar" class="w-4 h-4 text-gray-500"></i>
+                    <input type="date" id="dateFilter" class="form-input w-auto">
+                    <button onclick="setToday()" class="btn btn-primary btn-sm">Today</button>
+                </div>
+                
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="building" class="w-4 h-4 text-gray-500"></i>
+                    <select id="departmentFilter" class="form-select w-auto" onchange="loadChemicalData()">
+                        <option value="">All Departments</option>
+                        <option value="Production">Production</option>
+                        <option value="Quality Control">Quality Control</option>
+                        <option value="Maintenance">Maintenance</option>
+                        <option value="Administration">Administration</option>
+                        <option value="Warehouse">Warehouse</option>
+                        <option value="Engineering">Engineering</option>
+                    </select>
+                </div>
+                
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="truck" class="w-4 h-4 text-gray-500"></i>
+                    <select id="supplierFilter" class="form-select w-auto" onchange="loadChemicalData()">
+                        <option value="">All Suppliers</option>
+                        <option value="NIHON PARKERIZING">NIHON PARKERIZING</option>
+                        <option value="SHINE CAUSH PLANT">SHINE CAUSH PLANT</option>
+                        <option value="EBS BATANG MALAYSIA">EBS BATANG MALAYSIA</option>
+                    </select>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="settings" class="w-4 h-4 text-gray-500"></i>
+                    <select id="processFilter" class="form-select w-auto" onchange="loadChemicalData()">
+                        <option value="">All Processes</option>
+                        <option value="PRE/DEGREASING">PRE/DEGREASING</option>
+                        <option value="SURFACE CONDITIONER">SURFACE CONDITIONER</option>
+                        <option value="ZINC PHOSPHATE">ZINC PHOSPHATE</option>
+                        <option value="ED">ED</option>
+                        <option value="REWORK">REWORK</option>
+                        <option value="D.I WATER">D.I WATER</option>
+                        <option value="WWTP">WWTP</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        <div id="errorMessage" class="alert alert-error"></div>
+        <div id="successMessage" class="alert alert-success"></div>
+        <div id="loading" class="loading">
+            <div class="loading-spinner"></div>
+            Loading data...
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="summary-card">
+                <h3>Total Chemicals</h3>
+                <p id="totalChemicals" class="text-blue-600">0</p>
+            </div>
+            <div class="summary-card">
+                <h3>Total Suppliers</h3>
+                <p id="totalSuppliers" class="text-green-600">0</p>
+            </div>
+            <div class="summary-card">
+                <h3>Active Processes</h3>
+                <p id="activeProcesses" class="text-purple-600">0</p>
+            </div>
+            <div class="summary-card">
+                <h3>Total MOQ</h3>
+                <p id="totalMOQ" class="text-orange-600">0</p>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-container">
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>
+                                <div class="flex items-center space-x-2">
+                                    <i data-lucide="calendar" class="w-3 h-3"></i>
+                                    <span>Date</span>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="flex items-center space-x-2">
+                                    <i data-lucide="user" class="w-3 h-3"></i>
+                                    <span>Name</span>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="flex items-center space-x-2">
+                                    <i data-lucide="building" class="w-3 h-3"></i>
+                                    <span>Department</span>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="flex items-center space-x-2">
+                                    <i data-lucide="truck" class="w-3 h-3"></i>
+                                    <span>Supplier</span>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="flex items-center space-x-2">
+                                    <i data-lucide="flask-conical" class="w-3 h-3"></i>
+                                    <span>Process & Chemical</span>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="flex items-center space-x-2">
+                                    <i data-lucide="package" class="w-3 h-3"></i>
+                                    <span>MOQ</span>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="flex items-center space-x-2">
+                                    <i data-lucide="clock" class="w-3 h-3"></i>
+                                    <span>Last Update</span>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="flex items-center space-x-2">
+                                    <i data-lucide="settings" class="w-3 h-3"></i>
+                                    <span>Actions</span>
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="chemicalData">
+                        <!-- Data will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add/Edit Modal -->
+    <div id="chemicalModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">×</span>
+            <div class="mb-6">
+                <h2 id="modalTitle" class="text-2xl font-bold text-gray-900">Add New Chemical Entry</h2>
+                <p class="text-gray-600 mt-1">Fill in the details for the chemical entry</p>
+            </div>
+            
+            <form id="chemicalForm">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-group">
+                        <label class="form-label required" for="employeeName">Employee Name</label>
+                        <input type="text" id="employeeName" class="form-input" placeholder="Enter full name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label required" for="department">Department</label>
+                        <select id="department" class="form-select" required>
+                            <option value="">Select Department</option>
+                            <option value="Production">Production</option>
+                            <option value="Quality Control">Quality Control</option>
+                            <option value="Maintenance">Maintenance</option>
+                            <option value="Administration">Administration</option>
+                            <option value="Warehouse">Warehouse</option>
+                            <option value="Engineering">Engineering</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required" for="supplier">Supplier</label>
+                    <select id="supplier" class="form-select" required onchange="updateProcessOptions()">
+                        <option value="">Select Supplier</option>
+                        <option value="NIHON PARKERIZING">NIHON PARKERIZING</option>
+                        <option value="SHINE CAUSH PLANT">SHINE CAUSH PLANT</option>
+                        <option value="EBS BATANG MALAYSIA">EBS BATANG MALAYSIA</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-group">
+                        <label class="form-label required" for="process">Process</label>
+                        <select id="process" class="form-select" required onchange="updateChemicalOptions()">
+                            <option value="">Select Process</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label required" for="chemical">Chemical</label>
+                        <select id="chemical" class="form-select" required onchange="updateMOQ()">
+                            <option value="">Select Chemical</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label required" for="moq">MOQ (Minimum Order Quantity)</label>
+                    <input type="text" id="moq" class="form-input" placeholder="Auto-filled based on chemical selection" readonly>
+                </div>
+                
+                <div class="flex justify-end space-x-4 mt-8 pt-6 border-t border-gray-200">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                        Cancel
+                    </button>
+                    <button type="submit" id="submitBtn" class="btn btn-primary">
+                        <i data-lucide="save" class="w-4 h-4"></i>
+                        Save Entry
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+      // Initialize Lucide icons
+lucide.createIcons();
+
+// Your Google Apps Script endpoint URL - Replace with your actual URL
+const ENDPOINT_URL = 'https://script.google.com/macros/s/AKfycbw5mtj-p-01JXse2RL0x11rW-5qINHeTiiIBB7rQha-jTIHSdw_YSWC1Kl97Y-Cew/exec';
+
+let currentEditData = null;
+
+// Chemical data structure based on your system
+const chemicalData = {
+    'NIHON PARKERIZING': {
+        'PRE/DEGREASING': {
+            'FC-E2005A': '25',
+            'FC-E2005B': '20',
+            'D-11': '100ml',
+            'T-20': '500ml'
+        },
+        'SURFACE CONDITIONER': {
+            'CONDITIONER-A': '50',
+            'CONDITIONER-B': '30'
+        },
+        'ZINC PHOSPHATE': {
+            'ZINC-PHOS-1': '100',
+            'ZINC-PHOS-2': '75'
+        },
+        'ED': {
+            'ED-COAT-1': '200',
+            'ED-COAT-2': '150'
+        }
+    },
+    'SHINE CAUSH PLANT': {
+        'REWORK': {
+            'REWORK-CHEM-1': '40',
+            'REWORK-CHEM-2': '35'
+        },
+        'D.I WATER': {
+            'DI-WATER-TREAT': '500L',
+            'DI-FILTER': '10'
+        }
+    },
+    'EBS BATANG MALAYSIA': {
+        'WWTP': {
+            'WWTP-CHEM-1': '80',
+            'WWTP-CHEM-2': '60',
+            'COAGULANT': '25',
+            'FLOCCULANT': '15'
+        }
+    }
+};
+
+// DOM Elements
+const dateFilter = document.getElementById('dateFilter');
+const departmentFilter = document.getElementById('departmentFilter');
+const supplierFilter = document.getElementById('supplierFilter');
+const processFilter = document.getElementById('processFilter');
+const errorDiv = document.getElementById('errorMessage');
+const successDiv = document.getElementById('successMessage');
+const loadingDiv = document.getElementById('loading');
+const chemicalModal = document.getElementById('chemicalModal');
+const modalTitle = document.getElementById('modalTitle');
+const chemicalForm = document.getElementById('chemicalForm');
+
+// Summary elements
+const totalChemicalsEl = document.getElementById('totalChemicals');
+const totalSuppliersEl = document.getElementById('totalSuppliers');
+const activeProcessesEl = document.getElementById('activeProcesses');
+const totalMOQEl = document.getElementById('totalMOQ');
+
+// Set today's date as default
+function setToday() {
+    const today = new Date();
+    dateFilter.value = today.toISOString().split('T')[0];
+    loadChemicalData();
+}
+
+// Initialize
+setToday();
+dateFilter.addEventListener('change', loadChemicalData);
+
+// Show message function
+function showMessage(type, message, duration = 5000) {
+    const div = type === 'error' ? errorDiv : successDiv;
+    div.innerHTML = `
+        <div class="flex items-center space-x-2">
+            <i data-lucide="${type === 'error' ? 'alert-circle' : 'check-circle'}" class="w-5 h-5"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    div.style.display = 'block';
+    lucide.createIcons();
+    
+    setTimeout(() => {
+        div.style.display = 'none';
+    }, duration);
+}
+
+// Format date
+function formatDate(dateStr) {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    });
+}
+
+// Update summary statistics
+function updateSummary(data) {
+    const totalChemicals = data.length;
+    const uniqueSuppliers = new Set(data.map(item => item.supplier)).size;
+    const uniqueProcesses = new Set(data.map(item => item.process)).size;
+    const totalMOQ = data.length; // Count of entries as MOQ metric
+    
+    // Animate numbers
+    animateNumber(totalChemicalsEl, totalChemicals, 0);
+    animateNumber(totalSuppliersEl, uniqueSuppliers, 0);
+    animateNumber(activeProcessesEl, uniqueProcesses, 0);
+    animateNumber(totalMOQEl, totalMOQ, 0);
+}
+
+// Animate numbers
+function animateNumber(element, target, current = 0, suffix = '') {
+    const increment = target / 20;
+    const timer = setInterval(() => {
+        current += increment;
+        if (current >= target) {
+            element.textContent = target + suffix;
+            clearInterval(timer);
+        } else {
+            element.textContent = Math.floor(current) + suffix;
+        }
+    }, 50);
+}
+
+// Load chemical data
+async function loadChemicalData() {
+    loadingDiv.style.display = 'block';
+    const tbody = document.getElementById('chemicalData');
+    tbody.innerHTML = '';
+
+    try {
+        const response = await fetch(ENDPOINT_URL);
+        const data = await response.json();
+        const selectedDate = dateFilter.value;
+        const selectedDepartment = departmentFilter.value;
+        const selectedSupplier = supplierFilter.value;
+        const selectedProcess = processFilter.value;
+        
+        const filteredData = data.filter(row => {
+            const rowDate = new Date(row.submissionDate);
+            const dateMatch = !selectedDate || formatDate(rowDate) === formatDate(selectedDate);
+            const deptMatch = !selectedDepartment || row.department === selectedDepartment;
+            const supplierMatch = !selectedSupplier || row.supplier === selectedSupplier;
+            const processMatch = !selectedProcess || row.process === selectedProcess;
+            
+            return dateMatch && deptMatch && supplierMatch && processMatch;
+        });
+
+        updateSummary(filteredData);
+
+        if (filteredData.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="8" class="no-data">
+                        <div class="no-data-icon">
+                            <i data-lucide="flask-conical" class="w-16 h-16"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-700 mb-2">No chemical entries found</h3>
+                        <p class="text-gray-500">Try adjusting your filters or add a new entry</p>
+                    </td>
+                </tr>
+            `;
+        } else {
+            filteredData.forEach((row, index) => {
+                const tr = document.createElement('tr');
+                tr.style.animationDelay = `${index * 0.05}s`;
+                tr.style.animation = 'slideInUp 0.3s ease-out forwards';
+                
+                const submissionDate = new Date(row.submissionDate).toLocaleDateString();
+                const lastUpdate = row.lastUpdateDate ? 
+                    new Date(row.lastUpdateDate).toLocaleString() : '-';
+
+                tr.innerHTML = `
+                    <td>
+                        <div class="flex items-center space-x-2">
+                            <i data-lucide="calendar" class="w-4 h-4 text-gray-400"></i>
+                            <span>${submissionDate}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xs font-semibold">
+                                ${(row.employeeName || 'U').charAt(0).toUpperCase()}
+                            </div>
+                            <span class="font-medium">${row.employeeName || '-'}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="flex items-center space-x-2">
+                            <i data-lucide="building" class="w-4 h-4 text-gray-400"></i>
+                            <span>${row.department || '-'}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="supplier-badge">${row.supplier || '-'}</span>
+                    </td>
+                    <td>
+                        <div class="space-y-1">
+                            <span class="process-badge">${row.process || '-'}</span>
+                            <div class="text-sm text-gray-600">${row.chemical || '-'}</div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="moq-display">${row.moq || '-'}</span>
+                    </td>
+                    <td>
+                        <div class="flex items-center space-x-2 text-sm text-gray-500">
+                            <i data-lucide="clock" class="w-3 h-3"></i>
+                            <span>${lastUpdate}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="flex space-x-2">
+                            <button onclick='editEntry(${JSON.stringify(row).replace(/'/g, "&apos;")})' 
+                                    class="btn btn-primary btn-sm" title="Edit Entry">
+                                <i data-lucide="edit" class="w-3 h-3"></i>
+                            </button>
+                            <button onclick='deleteEntry("${row.submissionId}")' 
+                                    class="btn btn-danger btn-sm" title="Delete Entry">
+                                <i data-lucide="trash-2" class="w-3 h-3"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            // Re-initialize Lucide icons for new content
+            lucide.createIcons();
+        }
+    } catch (error) {
+        console.error('Error loading data:', error);
+        showMessage('error', 'Failed to load chemical data. Please refresh the page and try again.');
+        updateSummary([]);
+    } finally {
+        loadingDiv.style.display = 'none';
+    }
+}
+
+// Update process options based on selected supplier
+function updateProcessOptions() {
+    const supplier = document.getElementById('supplier').value;
+    const processSelect = document.getElementById('process');
+    const chemicalSelect = document.getElementById('chemical');
+    const moqInput = document.getElementById('moq');
+    
+    // Clear existing options
+    processSelect.innerHTML = '<option value="">Select Process</option>';
+    chemicalSelect.innerHTML = '<option value="">Select Chemical</option>';
+    moqInput.value = '';
+    
+    if (supplier && chemicalData[supplier]) {
+        const processes = Object.keys(chemicalData[supplier]);
+        processes.forEach(process => {
+            const option = document.createElement('option');
+            option.value = process;
+            option.textContent = process;
+            processSelect.appendChild(option);
+        });
+    }
+}
+
+// Update chemical options based on selected process
+function updateChemicalOptions() {
+    const supplier = document.getElementById('supplier').value;
+    const process = document.getElementById('process').value;
+    const chemicalSelect = document.getElementById('chemical');
+    const moqInput = document.getElementById('moq');
+    
+    // Clear existing options
+    chemicalSelect.innerHTML = '<option value="">Select Chemical</option>';
+    moqInput.value = '';
+    
+    if (supplier && process && chemicalData[supplier] && chemicalData[supplier][process]) {
+        const chemicals = Object.keys(chemicalData[supplier][process]);
+        chemicals.forEach(chemical => {
+            const option = document.createElement('option');
+            option.value = chemical;
+            option.textContent = chemical;
+            chemicalSelect.appendChild(option);
+        });
+    }
+}
+
+// Update MOQ based on selected chemical
+function updateMOQ() {
+    const supplier = document.getElementById('supplier').value;
+    const process = document.getElementById('process').value;
+    const chemical = document.getElementById('chemical').value;
+    const moqInput = document.getElementById('moq');
+    
+    if (supplier && process && chemical && 
+        chemicalData[supplier] && 
+        chemicalData[supplier][process] && 
+        chemicalData[supplier][process][chemical]) {
+        moqInput.value = chemicalData[supplier][process][chemical];
+    } else {
+        moqInput.value = '';
+    }
+}
+
+// Open add modal
+function openAddModal() {
+    currentEditData = null;
+    modalTitle.textContent = 'Add New Chemical Entry';
+    chemicalForm.reset();
+    chemicalModal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    
+    // Focus first input
+    setTimeout(() => {
+        document.getElementById('employeeName').focus();
+    }, 100);
+}
+
+// Edit entry
+function editEntry(rowData) {
+    currentEditData = rowData;
+    modalTitle.textContent = 'Edit Chemical Entry';
+    
+    // Populate form fields
+    document.getElementById('employeeName').value = rowData.employeeName || '';
+    document.getElementById('department').value = rowData.department || '';
+    document.getElementById('supplier').value = rowData.supplier || '';
+    
+    // Update process options based on supplier
+    updateProcessOptions();
+    setTimeout(() => {
+        document.getElementById('process').value = rowData.process || '';
+        // Update chemical options based on process
+        updateChemicalOptions();
+        setTimeout(() => {
+            document.getElementById('chemical').value = rowData.chemical || '';
+            // Update MOQ based on chemical
+            updateMOQ();
+        }, 100);
+    }, 100);
+    
+    chemicalModal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+// Close modal
+function closeModal() {
+    chemicalModal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+    currentEditData = null;
+    chemicalForm.reset();
+}
+
+// Delete entry with confirmation
+async function deleteEntry(submissionId) {
+    // Create custom confirmation dialog
+    const confirmed = await showConfirmDialog(
+        'Delete Chemical Entry',
+        'Are you sure you want to delete this chemical entry? This action cannot be undone.',
+        'Delete',
+        'Cancel'
+    );
+    
+    if (!confirmed) return;
+
+    try {
+        loadingDiv.style.display = 'block';
+        
+        const response = await fetch(ENDPOINT_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                action: 'delete',
+                submissionId: submissionId
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showMessage('success', 'Chemical entry deleted successfully!');
+            loadChemicalData();
+        } else {
+            throw new Error(result.message || 'Failed to delete entry');
+        }
+    } catch (error) {
+        console.error('Error deleting entry:', error);
+        showMessage('error', error.message || 'Network error. Please try again.');
+    } finally {
+        loadingDiv.style.display = 'none';
+    }
+}
+
+// Custom confirmation dialog
+function showConfirmDialog(title, message, confirmText, cancelText) {
+    return new Promise((resolve) => {
+        const dialog = document.createElement('div');
+        dialog.className = 'modal';
+        dialog.style.display = 'block';
+        dialog.innerHTML = `
+            <div class="modal-content" style="max-width: 400px; margin: 10% auto;">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="alert-triangle" class="w-8 h-8 text-red-600"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">${title}</h3>
+                    <p class="text-gray-600">${message}</p>
+                </div>
+                <div class="flex justify-center space-x-4">
+                    <button onclick="closeConfirmDialog(false)" class="btn btn-secondary">
+                        ${cancelText}
+                    </button>
+                    <button onclick="closeConfirmDialog(true)" class="btn btn-danger">
+                        ${confirmText}
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(dialog);
+        document.body.style.overflow = 'hidden';
+        lucide.createIcons();
+        
+        window.closeConfirmDialog = (result) => {
+            document.body.removeChild(dialog);
+            document.body.style.overflow = 'auto';
+            delete window.closeConfirmDialog;
+            resolve(result);
+        };
+    });
+}
+
+// Handle form submission
+chemicalForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const submitBtn = document.getElementById('submitBtn');
+    const originalContent = submitBtn.innerHTML;
+    
+    // Show loading state
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `
+        <div class="loading-spinner w-4 h-4"></div>
+        <span>Saving...</span>
+    `;
+    
+    const formData = {
+        employeeName: document.getElementById('employeeName').value.trim(),
+        department: document.getElementById('department').value,
+        supplier: document.getElementById('supplier').value,
+        process: document.getElementById('process').value,
+        chemical: document.getElementById('chemical').value,
+        moq: document.getElementById('moq').value.trim(),
+        action: currentEditData ? 'update' : 'add'
+    };
+
+    if (currentEditData) {
+        formData.submissionId = currentEditData.submissionId;
+    }
+
+    try {
+        const response = await fetch(ENDPOINT_URL, {
+            method: 'POST',
+            body: JSON.stringify(formData)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showMessage('success', 
+                currentEditData ? 'Chemical entry updated successfully!' : 'New chemical entry added successfully!'
+            );
+            closeModal();
+            loadChemicalData();
+        } else {
+            throw new Error(result.message || 'Failed to save entry');
+        }
+    } catch (error) {
+        console.error('Error saving entry:', error);
+        showMessage('error', error.message || 'Network error. Please try again.');
+    } finally {
+        // Restore button state
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalContent;
+        lucide.createIcons();
+    }
+});
+
+// Close modal when clicking outside the content
+window.onclick = function(event) {
+    if (event.target === chemicalModal) {
+        closeModal();
+    }
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+    // Escape key closes modal
+    if (e.key === 'Escape' && chemicalModal.style.display === 'block') {
+        closeModal();
+    }
+    
+    // Ctrl/Cmd + N opens add modal
+    if ((e.ctrlKey || e.metaKey) && e.key === 'n' && chemicalModal.style.display !== 'block') {
+        e.preventDefault();
+        openAddModal();
+    }
+});
+
+// Add smooth scroll behavior
+document.documentElement.style.scrollBehavior = 'smooth';
+
+// Initialize tooltips and enhance UX
+document.addEventListener('DOMContentLoaded', () => {
+    // Add loading animation to buttons
+    document.querySelectorAll('.btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            this.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                this.style.transform = '';
+            }, 150);
+        });
+    });
+});
+		 </script>
+</body>
+</html>
